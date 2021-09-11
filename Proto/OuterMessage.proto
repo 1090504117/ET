@@ -202,3 +202,18 @@ message M2C_TestRobotCase // IActorLocationResponse
 	string Message = 92;
 	int32 N = 1;
 }
+
+//ResponseType M2C_TestSendInfoResponse
+message C2M_TestSendInfoRequest // IActorLocationRequest
+{
+	int32 RpcId = 90;
+    int64 ActorId = 93;
+	int64 ItemId = 1;
+}
+
+message M2C_TestSendInfoResponse // IActorLocationResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+}

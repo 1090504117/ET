@@ -26,5 +26,7 @@ namespace ET
 		 public const ushort G2C_TestHotfixMessage = 20022;
 		 public const ushort C2M_TestRobotCase = 20023;
 		 public const ushort M2C_TestRobotCase = 20024;
+		 public const ushort C2M_TestSendInfoRequest = 20025;
+		 public const ushort M2C_TestSendInfoResponse = 20026;
 	}
 }
