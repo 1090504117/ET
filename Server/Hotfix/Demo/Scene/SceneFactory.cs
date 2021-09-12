@@ -32,9 +32,12 @@ namespace ET
                 case SceneType.Map:
                     scene.AddComponent<UnitComponent>();
                     scene.AddComponent<RecastPathComponent>();
+                    scene.AddComponent<PhysXComponent>();
                     break;
                 case SceneType.Location:
                     scene.AddComponent<LocationComponent>();
+                    break;
+                case SceneType.Physx:
                     break;
             }
 
