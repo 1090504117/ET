@@ -9,6 +9,8 @@ namespace ET
 		{
 			self.Awake();
 			self.InitalizePhysics();
+			self.Update();
+			self.Update();
 		}
 	}
 
@@ -80,6 +82,13 @@ namespace ET
 			RigidActorExt.CreateExclusiveShape(groundPlane, planeGeom, groundPlaneMaterial, null);
 
 			this.PhysXScene.AddActor(groundPlane);
+		}
+
+		public void Update()
+        {
+			//必须模拟两帧才能被pvd所观察到
+			this.PhysXScene.Simulate(0.0167f);
+			this.PhysXScene.FetchResults(true);
 		}
 	}
 }
