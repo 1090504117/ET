@@ -29,6 +29,8 @@ namespace ET
 
             Scene zoneScene = await SceneFactory.CreateZoneScene(1, "Game", Game.Scene);
 
+            await LoginHelper.Login(zoneScene, ConstValue.LoginAddress, "wj001", "wj001");
+
             await Game.EventSystem.Publish(new EventType.AppStartInitFinish() { ZoneScene = zoneScene });
         }
     }
