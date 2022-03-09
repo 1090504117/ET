@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PhysX
 {
-	public class SampleFilterShader : SimulationFilterShader
+	public class FilterShader : SimulationFilterShader
 	{
 		public override FilterResult Filter(int attributes0, FilterData filterData0, int attributes1, FilterData filterData1)
 		{

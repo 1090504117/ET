@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using PhysX;
 
 namespace ET
@@ -8,14 +9,20 @@ namespace ET
 		public override void Awake(PhysXComponent self)
 		{
 			self.Awake();
-			self.InitalizePhysics();
-			self.Update();
-			self.Update();
-		}
-	}
+			self.Init();
+
+            self.TimeoutCheckTimer = TimerComponent.Instance.NewRepeatedTimer(PhysXComponent.ElapsedMillsecond, self.Update);
+        }
+    }
 
 	public class PhysXComponent : Entity
 	{
+		public static long ElapsedMillsecond = 16;
+
+		public long TimeoutCheckTimer = 0;
+
+		public List<int> SyncIdList = new List<int>();
+
 		public static PhysXComponent Instance { get; private set; }
 
 		public void Awake()
@@ -26,7 +33,7 @@ namespace ET
 		private Physics Physics;
 		private PhysX.Scene PhysXScene;
 
-		public void InitalizePhysics()
+		public void Init()
 		{
 			ErrorOutput errorOutput = new ErrorOutput();
 			Foundation foundation = new Foundation(errorOutput);
@@ -43,7 +50,7 @@ namespace ET
 			// Connect to the PhysX Visual Debugger (if the PVD application is running)
 			this.Physics.Pvd.Connect("localhost");
 
-			CreateGroundPlane();
+			CreateWorld();
 		}
 
 		private SceneDesc CreateSceneDesc(Foundation foundation)
@@ -58,7 +65,7 @@ namespace ET
 #if GPU
 				GpuDispatcher = cudaContext.GpuDispatcher,
 #endif
-				FilterShader = new SampleFilterShader()
+				FilterShader = new FilterShader()
 			};
 
 #if GPU
@@ -69,7 +76,7 @@ namespace ET
 			return sceneDesc;
 		}
 
-		private void CreateGroundPlane()
+		private void CreateWorld()
 		{
 			var groundPlaneMaterial = this.PhysXScene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
 
