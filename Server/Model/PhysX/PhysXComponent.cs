@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using PhysX;
 
@@ -11,7 +12,7 @@ namespace ET
 			self.Awake();
 			self.Init();
 
-            self.TimeoutCheckTimer = TimerComponent.Instance.NewRepeatedTimer(PhysXComponent.ElapsedMillsecond, self.Update);
+            self.TimeoutCheckTimer = TimerComponent.Instance.NewRepeatedTimer(PhysXComponent.ElapsedMillsecond, self.TimerCallback);
         }
     }
 
@@ -31,7 +32,7 @@ namespace ET
 		}
 
 		private Physics Physics;
-		private PhysX.Scene PhysXScene;
+		private PhysX.Scene Scene;
 
 		public void Init()
 		{
@@ -39,63 +40,114 @@ namespace ET
 			Foundation foundation = new Foundation(errorOutput);
 			var pvd = new PhysX.VisualDebugger.Pvd(foundation);
 			this.Physics = new Physics(foundation, true, pvd);
-			this.PhysXScene = this.Physics.CreateScene(CreateSceneDesc(foundation));
+			Scene = this.Physics.CreateScene(CreateSceneDesc(foundation));
 
-			this.PhysXScene.SetVisualizationParameter(VisualizationParameter.Scale, 2.0f);
-			this.PhysXScene.SetVisualizationParameter(VisualizationParameter.CollisionShapes, true);
-			this.PhysXScene.SetVisualizationParameter(VisualizationParameter.JointLocalFrames, true);
-			this.PhysXScene.SetVisualizationParameter(VisualizationParameter.JointLimits, true);
-			this.PhysXScene.SetVisualizationParameter(VisualizationParameter.ActorAxes, true);
+			Scene.SetVisualizationParameter(VisualizationParameter.Scale, 2.0f);
+			Scene.SetVisualizationParameter(VisualizationParameter.CollisionShapes, true);
+			Scene.SetVisualizationParameter(VisualizationParameter.JointLocalFrames, true);
+			Scene.SetVisualizationParameter(VisualizationParameter.JointLimits, true);
+			Scene.SetVisualizationParameter(VisualizationParameter.ActorAxes, true);
 
 			// Connect to the PhysX Visual Debugger (if the PVD application is running)
 			this.Physics.Pvd.Connect("localhost");
+
+			EventCallback callback = new EventCallback();
+			Scene.SetSimulationEventCallback(callback);
 
 			CreateWorld();
 		}
 
 		private SceneDesc CreateSceneDesc(Foundation foundation)
 		{
-#if GPU
-			var cudaContext = new CudaContextManager(foundation);
-#endif
 
 			var sceneDesc = new SceneDesc
 			{
 				Gravity = new Vector3(0, -9.81f, 0),
-#if GPU
-				GpuDispatcher = cudaContext.GpuDispatcher,
-#endif
 				FilterShader = new FilterShader()
 			};
-
-#if GPU
-			sceneDesc.Flags |= SceneFlag.EnableGpuDynamics;
-			sceneDesc.BroadPhaseType |= BroadPhaseType.Gpu;
-#endif
 
 			return sceneDesc;
 		}
 
 		private void CreateWorld()
 		{
-			var groundPlaneMaterial = this.PhysXScene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+			foreach (PhysX.Plane wall in PhysXWorldConst.WallArray)
+			{
+				var material = Scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+				var body = Scene.Physics.CreateRigidStatic();
+				body.Name = "Wall";
+				body.GlobalPosePosition = wall.Pos;
+				body.GlobalPoseQuat = wall.Quat;
+				var geom = new BoxGeometry(wall.HalfShap);
+				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
+				Scene.AddActor(body);
+			}
 
-			var groundPlane = this.PhysXScene.Physics.CreateRigidStatic();
-			groundPlane.Name = "Ground Plane";
-			groundPlane.GlobalPose = Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(0, 0, 1), (float)System.Math.PI / 2);
+			foreach (Cube cube in PhysXWorldConst.CubeArray)
+			{
+				var material = Scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+				var body = Scene.Physics.CreateRigidDynamic();
+				body.Name = "Box";
+				body.GlobalPosePosition = cube.Pos;
+				body.GlobalPoseQuat = cube.Quat;
+				var geom = new BoxGeometry(cube.HalfShap);
+				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
+				Scene.AddActor(body);
+			}
 
-			var planeGeom = new PlaneGeometry();
-
-			RigidActorExt.CreateExclusiveShape(groundPlane, planeGeom, groundPlaneMaterial, null);
-
-			this.PhysXScene.AddActor(groundPlane);
+			foreach (Sphere sphere in PhysXWorldConst.SphereArray)
+			{
+				var material = Scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+				var body = Scene.Physics.CreateRigidDynamic();
+				body.Name = "Sphere";
+				body.GlobalPosePosition = sphere.Pos;
+				body.GlobalPoseQuat = sphere.Quat;
+				var geom = new SphereGeometry(sphere.Radius);
+				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
+				Scene.AddActor(body);
+			}
 		}
 
-		public void Update()
+		public void TimerCallback()
         {
-			//必须模拟两帧才能被pvd所观察到
-			this.PhysXScene.Simulate(0.0167f);
-			this.PhysXScene.FetchResults(true);
+			PhysXUtil.SceneStage = SceneStage.PreUpdate;
+			PreUpdate();
+
+			PhysXUtil.SceneStage = SceneStage.Update;
+			Scene.Simulate(0.0167f);
+			Scene.FetchResults(true);
+
+			PhysXUtil.SceneStage = SceneStage.LateUpdate;
+			LateUpdate();
+		}
+
+		private void PreUpdate()
+        {
+
+        }
+
+		private void LateUpdate()
+        {
+			foreach (var rigidActor in PhysXUtil.InLateUpdateNeedRemoveActorSet)
+			{
+				Debug.WriteLine($"rigidActor?.Scene?.RemoveActor {rigidActor?.GetHashCode()}");
+				rigidActor?.Scene?.RemoveActor(rigidActor);
+
+				Debug.WriteLine($"rigidActor?.Dispose() {rigidActor?.GetHashCode()}");
+				rigidActor?.Dispose();
+			}
+
+			PhysXUtil.InLateUpdateNeedRemoveActorSet.Clear();
+		}
+	}
+
+	public class EventCallback : SimulationEventCallback
+	{
+		public override void OnContact(ContactPairHeader pairHeader, ContactPair[] pairs)
+		{
+			base.OnContact(pairHeader, pairs);
+
+			PhysXUtil.OnContact(pairHeader, pairs);
 		}
 	}
 }

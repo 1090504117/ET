@@ -13,7 +13,7 @@ namespace PhysX
 			{
 				FilterFlag = FilterFlag.Default,
 				// Cause PhysX to report any contact of two shapes as a touch and call SimulationEventCallback.OnContact
-				PairFlags = PairFlag.ContactDefault | PairFlag.NotifyTouchFound | PairFlag.NotifyTouchLost
+				PairFlags = PairFlag.ContactDefault | PairFlag.NotifyTouchFound | PairFlag.NotifyTouchLost | PairFlag.NotifyContactPoints | PairFlag.TriggerDefault
 			};
 		}
 	}

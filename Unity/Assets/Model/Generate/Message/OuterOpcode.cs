@@ -28,5 +28,7 @@ namespace ET
 		 public const ushort M2C_TestRobotCase = 20024;
 		 public const ushort C2M_TestSendInfoRequest = 20025;
 		 public const ushort M2C_TestSendInfoResponse = 20026;
+		 public const ushort ProtoVector3 = 20027;
+		 public const ushort C2M_ShootRequest = 20028;
 	}
 }

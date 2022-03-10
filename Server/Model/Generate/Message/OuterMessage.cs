@@ -454,4 +454,37 @@ namespace ET
 
 	}
 
+	[Message(OuterOpcode.ProtoVector3)]
+	[ProtoContract]
+	public partial class ProtoVector3: Object
+	{
+		[ProtoMember(1)]
+		public float X { get; set; }
+
+		[ProtoMember(2)]
+		public float Y { get; set; }
+
+		[ProtoMember(3)]
+		public float Z { get; set; }
+
+	}
+
+	[Message(OuterOpcode.C2M_ShootRequest)]
+	[ProtoContract]
+	public partial class C2M_ShootRequest: Object
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(93)]
+		public long ActorId { get; set; }
+
+		[ProtoMember(1)]
+		public ProtoVector3 pos { get; set; }
+
+		[ProtoMember(2)]
+		public ProtoVector3 direction { get; set; }
+
+	}
+
 }
