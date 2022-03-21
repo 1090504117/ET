@@ -25,8 +25,9 @@ namespace ET
                     new C2G_LoginGate() { Key = r2CLogin.Key, GateId = r2CLogin.GateId});
 
                 Log.Debug("登陆gate成功!");
-
                 await Game.EventSystem.Publish(new EventType.LoginFinish() {ZoneScene = zoneScene});
+
+                EnterMapHelper.EnterMapAsync(zoneScene).Coroutine();
             }
             catch (Exception e)
             {

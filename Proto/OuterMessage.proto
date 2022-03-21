@@ -225,10 +225,49 @@ message ProtoVector3
 	float Z = 3;
 }
 
-message C2M_ShootRequest
+message ProtoQuaternion
+{
+    float X = 1;
+    float Y = 2;
+    float Z = 3;
+    float W = 4;
+}
+
+//ResponseType M2C_ThrowBumpResponse
+message C2M_ThrowBumpRequest // IRequest
 {
 	int32 RpcId = 90;
     int64 ActorId = 93;
-	ProtoVector3 pos = 1;
 	ProtoVector3 direction = 2;
+}
+
+message M2C_ThrowBumpResponse // IResponse
+{
+	int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
+    int64 ActorId = 93;
+}
+
+message Actor
+{
+    int32 BodyType = 1;
+    ProtoVector3 Pos = 2;
+    ProtoQuaternion Quat = 3;
+    repeated float ShapeParams = 4;
+}
+
+//ResponseType M2C_PhysXWorldResponse
+message C2M_PhysXWorldRequest // IActorLocationRequest
+{
+    int32 RpcId = 90;
+    int64 ActorId = 93;
+}
+
+message M2C_PhysXWorldResponse // IActorLocationResponse
+{
+    int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
+	repeated Actor Actors = 1;
 }

@@ -52,6 +52,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="PhysX\C2M_TestSendInfoHandler2.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Model\Server.Model.csproj" />
   </ItemGroup>
   <ItemGroup>

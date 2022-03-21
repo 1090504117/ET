@@ -10,14 +10,18 @@ namespace PhysX
     public enum BodyType
     {
         None,
-        Bump
+        Bump,
+        Player,
+        Sphere,
+        Cube,
+        Wall
     }
 
     public enum SceneStage
     {
         PreUpdate,
         Update,
-        LateUpdate
+        LateUpdate,
     }
 
     public class UserData
@@ -47,6 +51,11 @@ namespace PhysX
         public Vector3 Pos;
         public Quaternion Quat;
         public Vector3 HalfShap;
+    }
+
+    public class PhysXActor
+    {
+
     }
 
 

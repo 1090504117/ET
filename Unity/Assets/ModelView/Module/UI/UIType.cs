@@ -10,5 +10,6 @@ namespace ET
 	    public const string UILogin = "UILogin";
 	    public const string UILobby = "UILobby";
 	    public const string UITest = "UITest";
+	    public const string UIShootGame = "UIShootGame";
     }
 }

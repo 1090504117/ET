@@ -33,7 +33,7 @@ namespace PhysX
             return _innerId;
         }
 
-        public static void Shoot(Scene scene, Vector3 pos, Vector3 direction)
+        public static void ThrowBump(Scene scene, Vector3 pos, Vector3 direction)
         {
             var material = scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
             var body = scene.Physics.CreateRigidDynamic();

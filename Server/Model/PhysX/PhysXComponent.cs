@@ -78,6 +78,7 @@ namespace ET
 				body.Name = "Wall";
 				body.GlobalPosePosition = wall.Pos;
 				body.GlobalPoseQuat = wall.Quat;
+				body.UserData = BodyType.Wall;
 				var geom = new BoxGeometry(wall.HalfShap);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
@@ -90,6 +91,7 @@ namespace ET
 				body.Name = "Box";
 				body.GlobalPosePosition = cube.Pos;
 				body.GlobalPoseQuat = cube.Quat;
+				body.UserData = BodyType.Cube;
 				var geom = new BoxGeometry(cube.HalfShap);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
@@ -102,6 +104,7 @@ namespace ET
 				body.Name = "Sphere";
 				body.GlobalPosePosition = sphere.Pos;
 				body.GlobalPoseQuat = sphere.Quat;
+				body.UserData = BodyType.Sphere;
 				var geom = new SphereGeometry(sphere.Radius);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
@@ -139,6 +142,14 @@ namespace ET
 
 			PhysXUtil.InLateUpdateNeedRemoveActorSet.Clear();
 		}
+
+		public List<PhysX.Actor> Actors
+        {
+			get
+			{
+				return (List<PhysX.Actor>)Scene.GetActors(ActorTypeFlag.RigidStatic|ActorTypeFlag.RigidDynamic);
+			}
+        }
 	}
 
 	public class EventCallback : SimulationEventCallback

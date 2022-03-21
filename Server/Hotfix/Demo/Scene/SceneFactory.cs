@@ -37,7 +37,8 @@ namespace ET
                 case SceneType.Location:
                     scene.AddComponent<LocationComponent>();
                     break;
-                case SceneType.Physx:
+                case SceneType.PhysX:
+                    scene.AddComponent<PhysXComponent>();
                     break;
             }
 

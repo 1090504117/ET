@@ -18,7 +18,9 @@ namespace ET
 				list.List.Add(new Vector3(message.Xs[i], message.Ys[i], message.Zs[i]));
 			}
 
-			await unit.GetComponent<MoveComponent>().MoveToAsync(list.List, speed);
+			await ETTask.CompletedTask;
+
+			//await unit.GetComponent<MoveComponent>().MoveToAsync(list.List, speed);
 		}
 	}
 }

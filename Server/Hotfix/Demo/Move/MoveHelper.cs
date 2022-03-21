@@ -36,7 +36,7 @@ namespace ET
                 m2CPathfindingResult.Ys.Add(vector3.y);
                 m2CPathfindingResult.Zs.Add(vector3.z);
             }
-            MessageHelper.Broadcast(unit, m2CPathfindingResult);
+            //MessageHelper.Broadcast(unit, m2CPathfindingResult);
 
             bool ret = await unit.GetComponent<MoveComponent>().MoveToAsync(path, speed);
             if (ret) // 如果返回false，说明被其它移动取消了，这时候不需要通知客户端stop
@@ -53,19 +53,19 @@ namespace ET
 
         public static void SendStop(this Unit unit, int error)
         {
-            MessageHelper.Broadcast(unit, new M2C_Stop()
-            {
-                Error = error,
-                Id = unit.Id, 
-                X = unit.Position.x,
-                Y = unit.Position.y,
-                Z = unit.Position.z,
+            //MessageHelper.Broadcast(unit, new M2C_Stop()
+            //{
+            //    Error = error,
+            //    Id = unit.Id, 
+            //    X = unit.Position.x,
+            //    Y = unit.Position.y,
+            //    Z = unit.Position.z,
 						
-                A = unit.Rotation.x,
-                B = unit.Rotation.y,
-                C = unit.Rotation.z,
-                W = unit.Rotation.w,
-            });
+            //    A = unit.Rotation.x,
+            //    B = unit.Rotation.y,
+            //    C = unit.Rotation.z,
+            //    W = unit.Rotation.w,
+            //});
         }
     }
 }

@@ -469,9 +469,28 @@ namespace ET
 
 	}
 
-	[Message(OuterOpcode.C2M_ShootRequest)]
+	[Message(OuterOpcode.ProtoQuaternion)]
 	[ProtoContract]
-	public partial class C2M_ShootRequest: Object
+	public partial class ProtoQuaternion: Object
+	{
+		[ProtoMember(1)]
+		public float X { get; set; }
+
+		[ProtoMember(2)]
+		public float Y { get; set; }
+
+		[ProtoMember(3)]
+		public float Z { get; set; }
+
+		[ProtoMember(4)]
+		public float W { get; set; }
+
+	}
+
+	[ResponseType(typeof(M2C_ThrowBumpResponse))]
+	[Message(OuterOpcode.C2M_ThrowBumpRequest)]
+	[ProtoContract]
+	public partial class C2M_ThrowBumpRequest: Object, IRequest
 	{
 		[ProtoMember(90)]
 		public int RpcId { get; set; }
@@ -479,11 +498,75 @@ namespace ET
 		[ProtoMember(93)]
 		public long ActorId { get; set; }
 
-		[ProtoMember(1)]
-		public ProtoVector3 pos { get; set; }
-
 		[ProtoMember(2)]
 		public ProtoVector3 direction { get; set; }
+
+	}
+
+	[Message(OuterOpcode.M2C_ThrowBumpResponse)]
+	[ProtoContract]
+	public partial class M2C_ThrowBumpResponse: Object, IResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+		[ProtoMember(93)]
+		public long ActorId { get; set; }
+
+	}
+
+	[Message(OuterOpcode.Actor)]
+	[ProtoContract]
+	public partial class Actor: Object
+	{
+		[ProtoMember(1)]
+		public int BodyType { get; set; }
+
+		[ProtoMember(2)]
+		public ProtoVector3 Pos { get; set; }
+
+		[ProtoMember(3)]
+		public ProtoQuaternion Quat { get; set; }
+
+		[ProtoMember(4)]
+		public List<float> ShapeParams = new List<float>();
+
+	}
+
+	[ResponseType(typeof(M2C_PhysXWorldResponse))]
+	[Message(OuterOpcode.C2M_PhysXWorldRequest)]
+	[ProtoContract]
+	public partial class C2M_PhysXWorldRequest: Object, IActorLocationRequest
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(93)]
+		public long ActorId { get; set; }
+
+	}
+
+	[Message(OuterOpcode.M2C_PhysXWorldResponse)]
+	[ProtoContract]
+	public partial class M2C_PhysXWorldResponse: Object, IActorLocationResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+		[ProtoMember(1)]
+		public List<Actor> Actors = new List<Actor>();
 
 	}
 
