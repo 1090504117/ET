@@ -11,9 +11,10 @@ namespace ET
 			// 切换到map场景
 			using (SceneChangeComponent sceneChangeComponent = Game.Scene.AddComponent<SceneChangeComponent>())
 			{
-				await sceneChangeComponent.ChangeSceneAsync("ShootGame");
+				await sceneChangeComponent.ChangeSceneAsync(UnitySceneType.ShootGame);
 			}
-			args.ZoneScene.AddComponent<OperaComponent>();
+			args.ZoneScene.AddComponent<ShootGameObjectUpdateComponent>();
+			//args.ZoneScene.AddComponent<OperaComponent>();
 		}
 	}
 }

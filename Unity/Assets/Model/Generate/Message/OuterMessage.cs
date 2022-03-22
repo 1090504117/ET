@@ -490,7 +490,7 @@ namespace ET
 	[ResponseType(typeof(M2C_ThrowBumpResponse))]
 	[Message(OuterOpcode.C2M_ThrowBumpRequest)]
 	[ProtoContract]
-	public partial class C2M_ThrowBumpRequest: Object, IRequest
+	public partial class C2M_ThrowBumpRequest: Object, IActorLocationRequest
 	{
 		[ProtoMember(90)]
 		public int RpcId { get; set; }
@@ -498,14 +498,17 @@ namespace ET
 		[ProtoMember(93)]
 		public long ActorId { get; set; }
 
+		[ProtoMember(1)]
+		public ProtoVector3 Pos { get; set; }
+
 		[ProtoMember(2)]
-		public ProtoVector3 direction { get; set; }
+		public ProtoVector3 Direction { get; set; }
 
 	}
 
 	[Message(OuterOpcode.M2C_ThrowBumpResponse)]
 	[ProtoContract]
-	public partial class M2C_ThrowBumpResponse: Object, IResponse
+	public partial class M2C_ThrowBumpResponse: Object, IActorLocationResponse
 	{
 		[ProtoMember(90)]
 		public int RpcId { get; set; }
@@ -515,9 +518,6 @@ namespace ET
 
 		[ProtoMember(92)]
 		public string Message { get; set; }
-
-		[ProtoMember(93)]
-		public long ActorId { get; set; }
 
 	}
 
@@ -536,6 +536,9 @@ namespace ET
 
 		[ProtoMember(4)]
 		public List<float> ShapeParams = new List<float>();
+
+		[ProtoMember(5)]
+		public long ActorId { get; set; }
 
 	}
 

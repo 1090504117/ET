@@ -13,8 +13,7 @@ namespace ET
             GameObject bundleGameObject = (GameObject) ResourcesComponent.Instance.GetAsset(UIType.UIShootGame.StringToAB(), UIType.UIShootGame);
             GameObject gameObject = UnityEngine.Object.Instantiate(bundleGameObject);
             UI ui = EntityFactory.CreateWithParent<UI, string, GameObject>(uiComponent, UIType.UIShootGame, gameObject);
-
-            ui.AddComponent<UITestComponent>();
+            ui.AddComponent<UIShootGameComponent>();
             return ui;
         }
 

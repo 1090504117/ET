@@ -33,6 +33,7 @@ namespace ET
 
 		private Physics Physics;
 		private PhysX.Scene Scene;
+		private Dictionary<PhysX.Actor, ActorExtraData> ActorExtraDataDic = new Dictionary<PhysX.Actor, ActorExtraData>();
 
 		public void Init()
 		{
@@ -78,10 +79,10 @@ namespace ET
 				body.Name = "Wall";
 				body.GlobalPosePosition = wall.Pos;
 				body.GlobalPoseQuat = wall.Quat;
-				body.UserData = BodyType.Wall;
 				var geom = new BoxGeometry(wall.HalfShap);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
+				ActorExtraDataDic.Add(body, new ActorExtraData() { BodyType = BodyType.Wall, ActorId = PhysXUtil.GenActorId() });
 			}
 
 			foreach (Cube cube in PhysXWorldConst.CubeArray)
@@ -91,10 +92,10 @@ namespace ET
 				body.Name = "Box";
 				body.GlobalPosePosition = cube.Pos;
 				body.GlobalPoseQuat = cube.Quat;
-				body.UserData = BodyType.Cube;
 				var geom = new BoxGeometry(cube.HalfShap);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
+				ActorExtraDataDic.Add(body, new ActorExtraData() { BodyType = BodyType.Cube, ActorId = PhysXUtil.GenActorId() });
 			}
 
 			foreach (Sphere sphere in PhysXWorldConst.SphereArray)
@@ -104,10 +105,10 @@ namespace ET
 				body.Name = "Sphere";
 				body.GlobalPosePosition = sphere.Pos;
 				body.GlobalPoseQuat = sphere.Quat;
-				body.UserData = BodyType.Sphere;
 				var geom = new SphereGeometry(sphere.Radius);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
+				ActorExtraDataDic.Add(body, new ActorExtraData() { BodyType = BodyType.Sphere, ActorId = PhysXUtil.GenActorId() });
 			}
 		}
 
@@ -150,6 +151,17 @@ namespace ET
 				return (List<PhysX.Actor>)Scene.GetActors(ActorTypeFlag.RigidStatic|ActorTypeFlag.RigidDynamic);
 			}
         }
+
+		public ActorExtraData GetActorExtraDataByActor(PhysX.Actor actor)
+		{
+			ActorExtraDataDic.TryGetValue(actor, out ActorExtraData actorExtraData);
+			return actorExtraData;
+		}
+
+		public void ThrowBump(Vector3 pos, Vector3 direction)
+        {
+			PhysXUtil.ThrowBump(Scene, pos, direction);
+		}
 	}
 
 	public class EventCallback : SimulationEventCallback

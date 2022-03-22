@@ -1,4 +1,6 @@
-﻿namespace ET
+﻿using System.Collections.Generic;
+
+namespace ET
 {
     namespace EventType
     {
@@ -70,6 +72,27 @@
         public struct MoveStop
         {
             public Unit Unit;
+        }
+
+        public struct UpdateObject
+        {
+            public Dictionary<long, PhysXActor> ActorDic;
+        }
+
+        public struct PhysXActorCreate
+        {
+            public PhysXActor Actor;
+        }
+
+        public struct PhysXActorDelete
+        {
+            public Dictionary<long, PhysXActor> ActorDic;
+            public PhysXActor Actor;
+        }
+
+        public struct PhysXActorUpdate
+        {
+            public PhysXActor Actor;
         }
     }
 }

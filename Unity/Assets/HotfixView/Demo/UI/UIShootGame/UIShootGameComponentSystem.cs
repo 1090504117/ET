@@ -20,7 +20,7 @@ namespace ET
         public static void Test(this UIShootGameComponent self)
         {
             Debug.LogError("UIShootGameComponent.Test");
-            TestHelper.Test(self.ZoneScene(), 1).Coroutine();
+            ShootGameHelper.ThrowBump(self.ZoneScene()).Coroutine();
         }
     }
 }

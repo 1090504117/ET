@@ -53,9 +53,10 @@ namespace PhysX
         public Vector3 HalfShap;
     }
 
-    public class PhysXActor
+    public class ActorExtraData
     {
-
+        public BodyType BodyType;
+        public int ActorId;
     }
 
 

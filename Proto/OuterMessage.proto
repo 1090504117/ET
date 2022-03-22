@@ -234,19 +234,19 @@ message ProtoQuaternion
 }
 
 //ResponseType M2C_ThrowBumpResponse
-message C2M_ThrowBumpRequest // IRequest
+message C2M_ThrowBumpRequest // IActorLocationRequest
 {
 	int32 RpcId = 90;
     int64 ActorId = 93;
-	ProtoVector3 direction = 2;
+    ProtoVector3 Pos = 1;
+	ProtoVector3 Direction = 2;
 }
 
-message M2C_ThrowBumpResponse // IResponse
+message M2C_ThrowBumpResponse // IActorLocationResponse
 {
 	int32 RpcId = 90;
     int32 Error = 91;
     string Message = 92;
-    int64 ActorId = 93;
 }
 
 message Actor
@@ -255,6 +255,7 @@ message Actor
     ProtoVector3 Pos = 2;
     ProtoQuaternion Quat = 3;
     repeated float ShapeParams = 4;
+    int64 ActorId = 5;
 }
 
 //ResponseType M2C_PhysXWorldResponse

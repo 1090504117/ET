@@ -25,12 +25,12 @@ namespace PhysX
             return GetShortestRotation(_normalizedXDirection, d);
         }
 
-        private static int _innerId = 0;
+        private static int _innerActorId = 0;
 
-        public static int GenId()
+        public static int GenActorId()
         {
-            ++_innerId;
-            return _innerId;
+            ++_innerActorId;
+            return _innerActorId;
         }
 
         public static void ThrowBump(Scene scene, Vector3 pos, Vector3 direction)
