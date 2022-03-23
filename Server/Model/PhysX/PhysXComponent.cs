@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using PhysX;
@@ -18,7 +19,7 @@ namespace ET
 
 	public class PhysXComponent : Entity
 	{
-		public static long ElapsedMillsecond = 16;
+		public static int ElapsedMillsecond = 16;
 
 		public long TimeoutCheckTimer = 0;
 
@@ -34,6 +35,8 @@ namespace ET
 		private Physics Physics;
 		private PhysX.Scene Scene;
 		private Dictionary<PhysX.Actor, ActorExtraData> ActorExtraDataDic = new Dictionary<PhysX.Actor, ActorExtraData>();
+		private bool IsNeedNewWorld;
+		private CapsuleController PlayerController;
 
 		public void Init()
 		{
@@ -49,13 +52,8 @@ namespace ET
 			Scene.SetVisualizationParameter(VisualizationParameter.JointLimits, true);
 			Scene.SetVisualizationParameter(VisualizationParameter.ActorAxes, true);
 
-			// Connect to the PhysX Visual Debugger (if the PVD application is running)
-			this.Physics.Pvd.Connect("localhost");
-
 			EventCallback callback = new EventCallback();
 			Scene.SetSimulationEventCallback(callback);
-
-			CreateWorld();
 		}
 
 		private SceneDesc CreateSceneDesc(Foundation foundation)
@@ -63,14 +61,25 @@ namespace ET
 
 			var sceneDesc = new SceneDesc
 			{
-				Gravity = new Vector3(0, -9.81f, 0),
+				Gravity = new Vector3(0, -PhysXUtil.G, 0),
 				FilterShader = new FilterShader()
 			};
 
 			return sceneDesc;
 		}
 
-		private void CreateWorld()
+		public void ClearOldWorld()
+        {
+			List<PhysX.Actor> actorList = this.Actors;
+			foreach(var actor in Actors)
+            {
+				PhysXUtil.InLateUpdateNeedRemoveActorSet.Add((RigidActor)actor);
+			}
+
+			IsNeedNewWorld = true;
+		}
+
+		private void CreateNewWorld()
 		{
 			foreach (PhysX.Plane wall in PhysXWorldConst.WallArray)
 			{
@@ -92,6 +101,7 @@ namespace ET
 				body.Name = "Box";
 				body.GlobalPosePosition = cube.Pos;
 				body.GlobalPoseQuat = cube.Quat;
+				body.Mass = cube.Mass;
 				var geom = new BoxGeometry(cube.HalfShap);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
@@ -105,11 +115,46 @@ namespace ET
 				body.Name = "Sphere";
 				body.GlobalPosePosition = sphere.Pos;
 				body.GlobalPoseQuat = sphere.Quat;
+				body.Mass = sphere.Mass;
 				var geom = new SphereGeometry(sphere.Radius);
 				RigidActorExt.CreateExclusiveShape(body, geom, material, null);
 				Scene.AddActor(body);
 				ActorExtraDataDic.Add(body, new ActorExtraData() { BodyType = BodyType.Sphere, ActorId = PhysXUtil.GenActorId() });
 			}
+
+			CreatePlayer();
+
+			CheckAndConnectPvd();
+		}
+
+		private void CreatePlayer()
+        {
+			var material = Scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+			Capsule capusule = PhysXWorldConst.Player;
+			var desc = new CapsuleControllerDesc()
+			{
+				Height = capusule.Height,
+				Radius = capusule.Redius,
+				Material = material,
+				UpDirection = capusule.UpDirection,
+				//ReportCallback = new ControllerHitReport()
+			};
+
+			var controllerManager = Scene.CreateControllerManager();
+			PlayerController = controllerManager.CreateController<CapsuleController>(desc);
+			PlayerController.FootPosition = capusule.FootPos;
+			RigidDynamic controllerActor = PlayerController.Actor;
+			controllerActor.SetMassAndUpdateInertia(capusule.Mass);
+			ActorExtraDataDic.Add(controllerActor, new ActorExtraData() { BodyType = BodyType.Player, ActorId = PhysXUtil.GenActorId() });
+		}
+
+		private void CheckAndConnectPvd()
+        {
+			if (Physics.Pvd.IsConnected(false))
+			{
+				this.Physics.Pvd.Disconnect();
+			}
+			this.Physics.Pvd.Connect("localhost");
 		}
 
 		public void TimerCallback()
@@ -134,6 +179,8 @@ namespace ET
         {
 			foreach (var rigidActor in PhysXUtil.InLateUpdateNeedRemoveActorSet)
 			{
+				RemoveActorExtraData(rigidActor);
+
 				Debug.WriteLine($"rigidActor?.Scene?.RemoveActor {rigidActor?.GetHashCode()}");
 				rigidActor?.Scene?.RemoveActor(rigidActor);
 
@@ -142,6 +189,12 @@ namespace ET
 			}
 
 			PhysXUtil.InLateUpdateNeedRemoveActorSet.Clear();
+
+			if (IsNeedNewWorld)
+            {
+				IsNeedNewWorld = false;
+				CreateNewWorld();
+			}
 		}
 
 		public List<PhysX.Actor> Actors
@@ -152,15 +205,51 @@ namespace ET
 			}
         }
 
-		public ActorExtraData GetActorExtraDataByActor(PhysX.Actor actor)
+		public ActorExtraData GetActorExtraData(PhysX.Actor actor)
 		{
+			if (actor == null) return null;
 			ActorExtraDataDic.TryGetValue(actor, out ActorExtraData actorExtraData);
 			return actorExtraData;
 		}
 
-		public void ThrowBump(Vector3 pos, Vector3 direction)
+		public ActorExtraData RemoveActorExtraData(PhysX.Actor actor)
+		{
+			if (actor == null) return null;
+			ActorExtraDataDic.TryGetValue(actor, out ActorExtraData actorExtraData);
+			return actorExtraData;
+		}
+
+		public void ThrowBomb(Vector3 direction)
         {
-			PhysXUtil.ThrowBump(Scene, pos, direction);
+			Sphere bomb = PhysXWorldConst.Bomb;
+			Vector3 pos = (PlayerController == null || PlayerController.Actor == null)? 
+				Vector3.Zero : PlayerController.FootPosition + new Vector3(0, PlayerController.Height - PlayerController.Radius, 0) ;
+			float radius = bomb.Radius;
+			pos = pos + Vector3.Normalize(direction) * (radius + 0.5f);
+			var material = Scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
+			var body = Scene.Physics.CreateRigidDynamic();
+			body.GlobalPosePosition = pos;
+			body.Name = "Bomb";
+			body.Mass = bomb.Mass;
+			var geom = new SphereGeometry(radius);
+			RigidActorExt.CreateExclusiveShape(body, geom, material, null);
+			Scene.AddActor(body);
+			Vector3 normalizedDirection = Vector3.Normalize(direction);
+			float force = 7 * PhysXUtil.G;
+			body?.AddForceAtLocalPosition(normalizedDirection * force, Vector3.Zero, ForceMode.Impulse, true);
+
+			ActorExtraDataDic.Add(body, new ActorExtraData() { BodyType = BodyType.Bomb, ActorId = PhysXUtil.GenActorId() });
+		}
+
+		private float _speed = 0.005f;
+
+		public void MovePlayer(Vector3 direction)
+		{
+			if (PlayerController == null || PlayerController.Actor == null)
+            {
+				return;
+            }
+			PlayerController.Move(direction * _speed, new TimeSpan(0,0,0, ElapsedMillsecond));
 		}
 	}
 

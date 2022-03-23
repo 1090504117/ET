@@ -8,7 +8,7 @@ namespace ET
     [BsonIgnoreExtraElements]
     public sealed class PhysXActor : Entity
     {
-		public int BodyType;
+		public BodyType BodyType;
 
 		public Vector3 Pos;
 

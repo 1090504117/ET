@@ -30,10 +30,12 @@ namespace ET
 		 public const ushort M2C_TestSendInfoResponse = 20026;
 		 public const ushort ProtoVector3 = 20027;
 		 public const ushort ProtoQuaternion = 20028;
-		 public const ushort C2M_ThrowBumpRequest = 20029;
-		 public const ushort M2C_ThrowBumpResponse = 20030;
-		 public const ushort Actor = 20031;
-		 public const ushort C2M_PhysXWorldRequest = 20032;
-		 public const ushort M2C_PhysXWorldResponse = 20033;
+		 public const ushort Actor = 20029;
+		 public const ushort C2M_PhysXWorldRequest = 20030;
+		 public const ushort M2C_PhysXWorldResponse = 20031;
+		 public const ushort C2M_ThrowBombRequest = 20032;
+		 public const ushort M2C_ThrowBombResponse = 20033;
+		 public const ushort C2M_MovePlayerRequest = 20034;
+		 public const ushort M2C_MovePlayerResponse = 20035;
 	}
 }

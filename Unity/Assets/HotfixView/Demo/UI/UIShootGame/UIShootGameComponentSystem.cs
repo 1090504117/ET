@@ -53,11 +53,10 @@ namespace ET
                 //EventDispatcher.instance.DispatchEvent(EventNameDef.FIRE, false);
             };
             // 丢手雷
-            EventTriggerListener.Get(self.BombBtn).onClick += (btn) =>
+            EventTriggerListener.Get(self.BombBtn).onClick += async (btn) =>
             {
                 Debug.LogError("(self.BombBtn).onClick");
-
-                //EventDispatcher.instance.DispatchEvent(EventNameDef.BOMB);
+                await self.ThrowBomb();
             };
             // 跳跃
             EventTriggerListener.Get(self.JumpBtn).onClick += (btn) =>
@@ -80,12 +79,11 @@ namespace ET
     {
         public static void MoveDragCallback(this UIShootGameComponent self, Vector3 direction)
         {
-            Debug.LogError("MoveDragCallback");
+            ShootGameHelper.MovePlayer(self.ZoneScene(),direction).Coroutine();
         }
 
         public static void StopMoveCallback(this UIShootGameComponent self)
         {
-            Debug.LogError("StopMoveCallback");
 
         }
 
@@ -99,6 +97,31 @@ namespace ET
         {
             Debug.LogError("StopRotateCallback");
 
+        }
+
+        public static async ETTask ThrowBomb(this UIShootGameComponent self)
+        {
+            PhysXActorComponent physXActorComponent = self.ZoneScene().GetComponent<PhysXActorComponent>();
+            PhysXActor actor = physXActorComponent.MyActor;
+            if (actor == null)
+            {
+                return;
+            }
+            Camera camera = actor.GetComponent<PhysXPlayerComponent>().Camera;
+            if (camera == null)
+            {
+                return;
+            }
+            Vector3 direction = camera.transform.forward;
+            C2M_ThrowBombRequest msg = new C2M_ThrowBombRequest() { Direction = new ProtoVector3() { X = direction.x, Y = direction.y, Z = direction.z } };
+            M2C_ThrowBombResponse response =
+                await self.ZoneScene().Domain.GetComponent<SessionComponent>().Session.Call(msg) as M2C_ThrowBombResponse;
+            if (response != null && response.Error != ErrorCode.ERR_Success)
+            {
+                Log.Error(response.Message);
+                return;
+            }
+            await ETTask.CompletedTask;
         }
     }
 }

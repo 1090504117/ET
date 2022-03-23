@@ -94,5 +94,15 @@ namespace ET
         {
             public PhysXActor Actor;
         }
+
+        public struct PhysXPlayerCreate
+        {
+            public PhysXActor Actor;
+        }
+
+        public struct PhysXPlayerUpdate
+        {
+            public PhysXActor Actor;
+        }
     }
 }

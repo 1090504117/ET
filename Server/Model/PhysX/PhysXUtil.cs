@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace PhysX
 {
-    class PhysXUtil
+    public static class PhysXUtil
     {
+        public static float G = 9.81f;
+
         public static Quaternion GetShortestRotation(Vector3 v0, Vector3 v1)
         {
             float d = Vector3.Dot(v0, v1);
@@ -33,22 +35,26 @@ namespace PhysX
             return _innerActorId;
         }
 
-        public static void ThrowBump(Scene scene, Vector3 pos, Vector3 direction)
+        public static RigidActor ThrowBomb(Scene scene, Vector3 pos, Vector3 direction)
         {
             var material = scene.Physics.CreateMaterial(0.1f, 0.1f, 0.1f);
             var body = scene.Physics.CreateRigidDynamic();
             body.GlobalPosePosition = pos;
             body.Name = "Sphere";
-            body.UserData = (object)BodyType.Bump;
+            body.UserData = (object)BodyType.Bomb;
             var geom = new SphereGeometry(1f);
             RigidActorExt.CreateExclusiveShape(body, geom, material, null);
             scene.AddActor(body);
-            body?.AddForceAtLocalPosition(new Vector3(100, 0, 0), Vector3.Zero, ForceMode.Impulse, true);
+            Vector3 normalizedDirection = Vector3.Normalize(direction);
+            float force = 10 * G;
+            body?.AddForceAtLocalPosition(normalizedDirection * force, Vector3.Zero, ForceMode.Impulse, true);
+            return body;
         }
 
-        public static bool IsBumpByActor(Actor actor)
+        public static bool IsBombByActor(Actor actor)
         {
-            return actor != null && actor.UserData != null && (BodyType)actor.UserData == BodyType.Bump;
+            ActorExtraData extraData = ET.PhysXComponent.Instance.GetActorExtraData(actor);
+            return extraData != null && extraData.BodyType == BodyType.Bomb;
         }
 
         private static void RealOnContact(ContactPairHeader pairHeader, ContactPair[] pairs)
@@ -59,25 +65,24 @@ namespace PhysX
                 Actor? actor1 = pair.Shape1?.Actor;
                 Actor? actor = null;
 
-                bool isActor0Bump = IsBumpByActor(actor0);
-                bool isActor1Bump = IsBumpByActor(actor1);
+                bool isActor0Bomb = IsBombByActor(actor0);
+                bool isActor1Bomb = IsBombByActor(actor1);
 
-                if (isActor0Bump || isActor1Bump)
+                if (isActor0Bomb || isActor1Bomb)
                 {
-                    if (!(isActor0Bump && isActor1Bump))
+                    if (!(isActor0Bomb && isActor1Bomb))
                     {
-                        actor = isActor0Bump ? actor0 : isActor1Bump ? actor1 : null;
+                        actor = isActor0Bomb ? actor0 : isActor1Bomb ? actor1 : null;
                     }
 
                     if (actor != null)
                     {
-                        PrintStage();
                         Debug.WriteLine($"actor = {actor}");
                         RigidActor? rigidActor = actor as RigidActor;
                         if (rigidActor != null)
                         {
                             InLateUpdateNeedRemoveActorSet.Add(rigidActor);
-                            //AddExplosionForce(rigidActor.Scene, rigidActor.GlobalPosePosition, 10, 1000, ForceMode.Impulse);
+                            AddExplosionForce(rigidActor.Scene, rigidActor.GlobalPosePosition, 10, 1000, ForceMode.Impulse);
                         }
 
                     }
@@ -101,7 +106,7 @@ namespace PhysX
 
         public static void AddExplosionForce(Scene scene, Vector3 pos, float distance, float power ,ForceMode forceMode)
         {
-            SphereGeometry geom = new SphereGeometry(radius: 10f);
+            SphereGeometry geom = new SphereGeometry(radius: distance);
             OverlapHit[]? hits = null;
             bool status = scene.Overlap
             (

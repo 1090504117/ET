@@ -233,21 +233,6 @@ message ProtoQuaternion
     float W = 4;
 }
 
-//ResponseType M2C_ThrowBumpResponse
-message C2M_ThrowBumpRequest // IActorLocationRequest
-{
-	int32 RpcId = 90;
-    int64 ActorId = 93;
-    ProtoVector3 Pos = 1;
-	ProtoVector3 Direction = 2;
-}
-
-message M2C_ThrowBumpResponse // IActorLocationResponse
-{
-	int32 RpcId = 90;
-    int32 Error = 91;
-    string Message = 92;
-}
 
 message Actor
 {
@@ -271,4 +256,35 @@ message M2C_PhysXWorldResponse // IActorLocationResponse
     int32 Error = 91;
     string Message = 92;
 	repeated Actor Actors = 1;
+}
+
+
+//ResponseType M2C_ThrowBombResponse
+message C2M_ThrowBombRequest // IActorLocationRequest
+{
+	int32 RpcId = 90;
+    int64 ActorId = 93;
+	ProtoVector3 Direction = 1;
+}
+
+message M2C_ThrowBombResponse // IActorLocationResponse
+{
+	int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
+}
+
+//ResponseType M2C_MovePlayerResponse
+message C2M_MovePlayerRequest // IActorLocationRequest
+{
+    int32 RpcId = 90;
+    int64 ActorId = 93;
+    ProtoVector3 Direction = 1;
+}
+
+message M2C_MovePlayerResponse // IActorLocationResponse
+{
+    int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
 }

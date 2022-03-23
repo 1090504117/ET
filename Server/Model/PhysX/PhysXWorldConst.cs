@@ -10,7 +10,7 @@ namespace PhysX
     public enum BodyType
     {
         None,
-        Bump,
+        Bomb,
         Player,
         Sphere,
         Cube,
@@ -35,7 +35,7 @@ namespace PhysX
         public Vector3 Pos;
         public Quaternion Quat;
         public Vector3 HalfShap;
-        public float Weight;
+        public float Mass;
     }
 
     public class Sphere
@@ -43,7 +43,7 @@ namespace PhysX
         public Vector3 Pos;
         public Quaternion Quat;
         public float Radius;
-        public float Weight;
+        public float Mass;
     }
 
     public class Plane
@@ -51,6 +51,16 @@ namespace PhysX
         public Vector3 Pos;
         public Quaternion Quat;
         public Vector3 HalfShap;
+    }
+
+    public class Capsule
+    {
+        public Vector3 FootPos;
+        public Quaternion Quat;
+        public float Height;
+        public float Redius;
+        public Vector3 UpDirection;
+        public float Mass;
     }
 
     public class ActorExtraData
@@ -64,18 +74,18 @@ namespace PhysX
     {
         public static Cube[] CubeArray = new Cube[]
         {
-            new Cube(){ Pos=new Vector3(1,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(1,1,1), Weight=10},
-            new Cube(){ Pos=new Vector3(-13,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(2,1,1), Weight=20},
-            new Cube(){ Pos=new Vector3(5,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(4,1,1), Weight=100},
-            new Cube(){ Pos=new Vector3(27,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(1,1,1), Weight=50},
+            new Cube(){ Pos=new Vector3(1,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(1,1,1), Mass=10},
+            new Cube(){ Pos=new Vector3(-13,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(2,1,1), Mass=20},
+            new Cube(){ Pos=new Vector3(5,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(4,1,1), Mass=100},
+            new Cube(){ Pos=new Vector3(27,1,0), Quat=Quaternion.Identity, HalfShap=new Vector3(1,1,1), Mass=50},
         };
 
         public static Sphere[] SphereArray = new Sphere[]
         {
-            new Sphere(){ Pos=new Vector3(1,10,0), Quat=Quaternion.Identity, Radius=1, Weight=10},
-            new Sphere(){ Pos=new Vector3(3,10,0), Quat=Quaternion.Identity, Radius=3, Weight=20},
-            new Sphere(){ Pos=new Vector3(5,10,0), Quat=Quaternion.Identity, Radius=2, Weight=100},
-            new Sphere(){ Pos=new Vector3(7,10,0), Quat=Quaternion.Identity, Radius=4, Weight=50},
+            new Sphere(){ Pos=new Vector3(1,10,0), Quat=Quaternion.Identity, Radius=1, Mass=10},
+            new Sphere(){ Pos=new Vector3(3,10,0), Quat=Quaternion.Identity, Radius=3, Mass=20},
+            new Sphere(){ Pos=new Vector3(5,10,0), Quat=Quaternion.Identity, Radius=2, Mass=100},
+            new Sphere(){ Pos=new Vector3(7,10,0), Quat=Quaternion.Identity, Radius=4, Mass=50},
         };
 
         private static float WallPlaneHalfLength = 60;
@@ -89,6 +99,23 @@ namespace PhysX
             new Plane(){ Pos=new Vector3((WallPlaneHalfLength+WallPlaneHalfHeight),WallPlaneHalfLength,0), Quat=Quaternion.Identity, HalfShap=new Vector3(WallPlaneHalfHeight,WallPlaneHalfLength,WallPlaneHalfLength)},
             new Plane(){ Pos=new Vector3(0,WallPlaneHalfLength,-(WallPlaneHalfLength+WallPlaneHalfHeight)), Quat=Quaternion.Identity, HalfShap=new Vector3(WallPlaneHalfLength,WallPlaneHalfLength,WallPlaneHalfHeight)},
             new Plane(){ Pos=new Vector3(0,WallPlaneHalfLength,(WallPlaneHalfLength+WallPlaneHalfHeight)), Quat=Quaternion.Identity, HalfShap=new Vector3(WallPlaneHalfLength,WallPlaneHalfLength,WallPlaneHalfHeight)},
+        };
+
+        public static Capsule Player = new Capsule()
+        {
+            Height = 2,
+            Redius = 0.5f,
+            FootPos = new Vector3(0, 0, -40),
+            UpDirection = new Vector3(0, 1, 0),
+            Mass = 50,
+        };
+
+        public static Sphere Bomb = new Sphere()
+        {
+            Pos = Vector3.Zero,
+            Quat = Quaternion.Identity,
+            Radius = 1,
+            Mass = 0.5f,
         };
     }
 }

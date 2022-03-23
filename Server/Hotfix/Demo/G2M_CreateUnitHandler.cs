@@ -35,6 +35,9 @@ namespace ET
 			}
 			MessageHelper.SendActor(unit.GetComponent<UnitGateComponent>().GateSessionActorId, createUnits);
 
+			PhysXComponent physXComponent = scene.GetComponent<PhysXComponent>();
+			physXComponent.ClearOldWorld();
+
 			reply();
 		}
 	}

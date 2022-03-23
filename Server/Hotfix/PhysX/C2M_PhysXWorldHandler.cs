@@ -42,7 +42,7 @@ namespace ET
 				{
 
 				}
-				else if (bodyType == BodyType.Bump || bodyType == BodyType.Sphere)
+				else if (bodyType == BodyType.Bomb || bodyType == BodyType.Sphere)
 				{
 					Shape shape = rigidActor.GetShape(0);
 					SphereGeometry sphere = shape.GetSphereGeometry();
@@ -55,6 +55,13 @@ namespace ET
 					shapeParams.Add(boxGeometry.Size.X);
 					shapeParams.Add(boxGeometry.Size.Y);
 					shapeParams.Add(boxGeometry.Size.Z);
+				}
+				else if (bodyType == BodyType.Player)
+                {
+					Shape shape = rigidActor.GetShape(0);
+					CapsuleGeometry capsuleGeometry = shape.GetCapsuleGeometry();
+					shapeParams.Add(capsuleGeometry.HalfHeight);
+					shapeParams.Add(capsuleGeometry.Radius);
 				}
 
 				response.Actors.Add(new Actor()
